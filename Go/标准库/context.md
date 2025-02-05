@@ -8,10 +8,10 @@
 package main
 
 import (
-	"fmt"
-	"sync"
+    "fmt"
+    "sync"
 
-	"time"
+    "time"
 )
 
 var wg sync.WaitGroup
@@ -19,20 +19,20 @@ var wg sync.WaitGroup
 // 初始的例子
 
 func worker() {
-	for {
-		fmt.Println("worker")
-		time.Sleep(time.Second)
-	}
-	// 如何接收外部命令实现退出
-	wg.Done()
+    for {
+        fmt.Println("worker")
+        time.Sleep(time.Second)
+    }
+    // 如何接收外部命令实现退出
+    wg.Done()
 }
 
 func main() {
-	wg.Add(1)
-	go worker()
-	// 如何优雅的实现结束子goroutine
-	wg.Wait()
-	fmt.Println("over")
+    wg.Add(1)
+    go worker()
+    // 如何优雅的实现结束子goroutine
+    wg.Wait()
+    fmt.Println("over")
 }
 ```
 
@@ -42,10 +42,10 @@ func main() {
 package main
 
 import (
-	"fmt"
-	"sync"
+    "fmt"
+    "sync"
 
-	"time"
+    "time"
 )
 
 var wg sync.WaitGroup
@@ -56,23 +56,23 @@ var exit bool
 // 2. 如果worker中再启动goroutine，就不太好控制了。
 
 func worker() {
-	for {
-		fmt.Println("worker")
-		time.Sleep(time.Second)
-		if exit {
-			break
-		}
-	}
-	wg.Done()
+    for {
+        fmt.Println("worker")
+        time.Sleep(time.Second)
+        if exit {
+            break
+        }
+    }
+    wg.Done()
 }
 
 func main() {
-	wg.Add(1)
-	go worker()
-	time.Sleep(time.Second * 3) // sleep3秒以免程序过快退出
-	exit = true                 // 修改全局变量实现子goroutine的退出
-	wg.Wait()
-	fmt.Println("over")
+    wg.Add(1)
+    go worker()
+    time.Sleep(time.Second * 3) // sleep3秒以免程序过快退出
+    exit = true                 // 修改全局变量实现子goroutine的退出
+    wg.Wait()
+    fmt.Println("over")
 }
 ```
 
@@ -82,10 +82,10 @@ func main() {
 package main
 
 import (
-	"fmt"
-	"sync"
+    "fmt"
+    "sync"
 
-	"time"
+    "time"
 )
 
 var wg sync.WaitGroup
@@ -95,27 +95,27 @@ var wg sync.WaitGroup
 
 func worker(exitChan chan struct{}) {
 LOOP:
-	for {
-		fmt.Println("worker")
-		time.Sleep(time.Second)
-		select {
-		case <-exitChan: // 等待接收上级通知
-			break LOOP
-		default:
-		}
-	}
-	wg.Done()
+    for {
+        fmt.Println("worker")
+        time.Sleep(time.Second)
+        select {
+        case <-exitChan: // 等待接收上级通知
+            break LOOP
+        default:
+        }
+    }
+    wg.Done()
 }
 
 func main() {
-	var exitChan = make(chan struct{})
-	wg.Add(1)
-	go worker(exitChan)
-	time.Sleep(time.Second * 3) // sleep3秒以免程序过快退出
-	exitChan <- struct{}{}      // 给子goroutine发送退出信号
-	close(exitChan)
-	wg.Wait()
-	fmt.Println("over")
+    var exitChan = make(chan struct{})
+    wg.Add(1)
+    go worker(exitChan)
+    time.Sleep(time.Second * 3) // sleep3秒以免程序过快退出
+    exitChan <- struct{}{}      // 给子goroutine发送退出信号
+    close(exitChan)
+    wg.Wait()
+    fmt.Println("over")
 }
 ```
 
@@ -125,37 +125,37 @@ func main() {
 package main
 
 import (
-	"context"
-	"fmt"
-	"sync"
+    "context"
+    "fmt"
+    "sync"
 
-	"time"
+    "time"
 )
 
 var wg sync.WaitGroup
 
 func worker(ctx context.Context) {
 LOOP:
-	for {
-		fmt.Println("worker")
-		time.Sleep(time.Second)
-		select {
-		case <-ctx.Done(): // 等待上级通知
-			break LOOP
-		default:
-		}
-	}
-	wg.Done()
+    for {
+        fmt.Println("worker")
+        time.Sleep(time.Second)
+        select {
+        case <-ctx.Done(): // 等待上级通知
+            break LOOP
+        default:
+        }
+    }
+    wg.Done()
 }
 
 func main() {
-	ctx, cancel := context.WithCancel(context.Background())
-	wg.Add(1)
-	go worker(ctx)
-	time.Sleep(time.Second * 3)
-	cancel() // 通知子goroutine结束
-	wg.Wait()
-	fmt.Println("over")
+    ctx, cancel := context.WithCancel(context.Background())
+    wg.Add(1)
+    go worker(ctx)
+    time.Sleep(time.Second * 3)
+    cancel() // 通知子goroutine结束
+    wg.Wait()
+    fmt.Println("over")
 }
 ```
 
@@ -165,50 +165,50 @@ func main() {
 package main
 
 import (
-	"context"
-	"fmt"
-	"sync"
+    "context"
+    "fmt"
+    "sync"
 
-	"time"
+    "time"
 )
 
 var wg sync.WaitGroup
 
 func worker(ctx context.Context) {
-	go worker2(ctx)
+    go worker2(ctx)
 LOOP:
-	for {
-		fmt.Println("worker")
-		time.Sleep(time.Second)
-		select {
-		case <-ctx.Done(): // 等待上级通知
-			break LOOP
-		default:
-		}
-	}
-	wg.Done()
+    for {
+        fmt.Println("worker")
+        time.Sleep(time.Second)
+        select {
+        case <-ctx.Done(): // 等待上级通知
+            break LOOP
+        default:
+        }
+    }
+    wg.Done()
 }
 
 func worker2(ctx context.Context) {
 LOOP:
-	for {
-		fmt.Println("worker2")
-		time.Sleep(time.Second)
-		select {
-		case <-ctx.Done(): // 等待上级通知
-			break LOOP
-		default:
-		}
-	}
+    for {
+        fmt.Println("worker2")
+        time.Sleep(time.Second)
+        select {
+        case <-ctx.Done(): // 等待上级通知
+            break LOOP
+        default:
+        }
+    }
 }
 func main() {
-	ctx, cancel := context.WithCancel(context.Background())
-	wg.Add(1)
-	go worker(ctx)
-	time.Sleep(time.Second * 3)
-	cancel() // 通知子goroutine结束
-	wg.Wait()
-	fmt.Println("over")
+    ctx, cancel := context.WithCancel(context.Background())
+    wg.Add(1)
+    go worker(ctx)
+    time.Sleep(time.Second * 3)
+    cancel() // 通知子goroutine结束
+    wg.Wait()
+    fmt.Println("over")
 }
 ```
 
@@ -233,9 +233,9 @@ type Context interface {
 
 其中：
 
-- `Deadline`方法需要返回当前`Context`被取消的时间，也就是完成工作的截止时间（deadline）；
+- `Deadline`方法返回当前`Context`被取消的时间，也就是完成工作的截止时间（deadline）；
 
-- `Done`方法需要返回一个`Channel`，这个Channel会在当前工作完成或者上下文被取消之后关闭，多次调用`Done`方法会返回同一个Channel；
+- `Done`方法返回一个`Channel`，这个Channel会在当前工作完成或者上下文被取消之后关闭，多次调用`Done`方法会返回同一个Channel；
 
 - ```
   Err
@@ -282,36 +282,34 @@ Go内置两个函数：`Background()`和`TODO()`，这两个函数分别返回�
 func WithCancel(parent Context) (ctx Context, cancel CancelFunc)
 ```
 
-`WithCancel`返回带有新Done通道的父节点的副本。当调用返回的cancel函数或当关闭父上下文的Done通道时，将关闭返回上下文的Done通道，无论先发生什么情况。
-
-取消此上下文将释放与其关联的资源，因此代码应该在此上下文中运行的操作完成后立即调用cancel。
+调用返回的`cancel`可以取消掉goroutine，当ctx被取消掉，他派送的所有上下文都会被取消掉
 
 ```go
 func gen(ctx context.Context) <-chan int {
-		dst := make(chan int)
-		n := 1
-		go func() {
-			for {
-				select {
-				case <-ctx.Done():
-					return // return结束该goroutine，防止泄露
-				case dst <- n:
-					n++
-				}
-			}
-		}()
-		return dst
-	}
+        dst := make(chan int)
+        n := 1
+        go func() {
+            for {
+                select {
+                case <-ctx.Done():
+                    return // return结束该goroutine，防止泄露
+                case dst <- n:
+                    n++
+                }
+            }
+        }()
+        return dst
+    }
 func main() {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel() // 当我们取完需要的整数后调用cancel
+    ctx, cancel := context.WithCancel(context.Background())
+    defer cancel() // 当我们取完需要的整数后调用cancel
 
-	for n := range gen(ctx) {
-		fmt.Println(n)
-		if n == 5 {
-			break
-		}
-	}
+    for n := range gen(ctx) {
+        fmt.Println(n)
+        if n == 5 {
+            break
+        }
+    }
 }
 ```
 
@@ -325,25 +323,23 @@ func main() {
 func WithDeadline(parent Context, deadline time.Time) (Context, CancelFunc)
 ```
 
-返回父上下文的副本，并将deadline调整为不迟于d。如果父上下文的deadline已经早于d，则WithDeadline(parent, d)在语义上等同于父上下文。当截止日过期时，当调用返回的cancel函数时，或者当父上下文的Done通道关闭时，返回上下文的Done通道将被关闭，以最先发生的情况为准。
-
-取消此上下文将释放与其关联的资源，因此代码应该在此上下文中运行的操作完成后立即调用cancel。
+`WithDeadline` 表示绝对时间：当时间到达`deadline`时间时，自动取消goroutine，当然时间没到的话，也可以手动调用`cancel`取消，当ctx被取消掉，他派送的所有上下文都会被取消掉
 
 ```go
 func main() {
-	d := time.Now().Add(50 * time.Millisecond)
-	ctx, cancel := context.WithDeadline(context.Background(), d)
+    d := time.Now().Add(50 * time.Millisecond)
+    ctx, cancel := context.WithDeadline(context.Background(), d)
 
-	// 尽管ctx会过期，但在任何情况下调用它的cancel函数都是很好的实践。
-	// 如果不这样做，可能会使上下文及其父类存活的时间超过必要的时间。
-	defer cancel()
+    // 尽管ctx会过期，但在任何情况下调用它的cancel函数都是很好的实践。
+    // 如果不这样做，可能会使上下文及其父类存活的时间超过必要的时间。
+    defer cancel()
 
-	select {
-	case <-time.After(1 * time.Second):
-		fmt.Println("overslept")
-	case <-ctx.Done():
-		fmt.Println(ctx.Err())
-	}
+    select {
+    case <-time.After(1 * time.Second):
+        fmt.Println("overslept")
+    case <-ctx.Done():
+        fmt.Println(ctx.Err())
+    }
 }
 ```
 
@@ -361,17 +357,17 @@ func WithTimeout(parent Context, timeout time.Duration) (Context, CancelFunc)
 
 `WithTimeout`返回`WithDeadline(parent, time.Now().Add(timeout))`。
 
-取消此上下文将释放与其相关的资源，因此代码应该在此上下文中运行的操作完成后立即调用cancel，通常用于数据库或者网络连接的超时控制。具体示例如下：
+`WithTimeout`表示相对时间，当经过`timeout`时间后，自动取消goroutine，当然时间没到的话，也可以手动调用`cancel`取消，当ctx被取消掉，他派送的所有上下文都会被取消掉
 
 ```go
 package main
 
 import (
-	"context"
-	"fmt"
-	"sync"
+    "context"
+    "fmt"
+    "sync"
 
-	"time"
+    "time"
 )
 
 // context.WithTimeout
@@ -380,28 +376,28 @@ var wg sync.WaitGroup
 
 func worker(ctx context.Context) {
 LOOP:
-	for {
-		fmt.Println("db connecting ...")
-		time.Sleep(time.Millisecond * 10) // 假设正常连接数据库耗时10毫秒
-		select {
-		case <-ctx.Done(): // 50毫秒后自动调用
-			break LOOP
-		default:
-		}
-	}
-	fmt.Println("worker done!")
-	wg.Done()
+    for {
+        fmt.Println("db connecting ...")
+        time.Sleep(time.Millisecond * 10) // 假设正常连接数据库耗时10毫秒
+        select {
+        case <-ctx.Done(): // 50毫秒后自动调用
+            break LOOP
+        default:
+        }
+    }
+    fmt.Println("worker done!")
+    wg.Done()
 }
 
 func main() {
-	// 设置一个50毫秒的超时
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*50)
-	wg.Add(1)
-	go worker(ctx)
-	time.Sleep(time.Second * 5)
-	cancel() // 通知子goroutine结束
-	wg.Wait()
-	fmt.Println("over")
+    // 设置一个50毫秒的超时
+    ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*50)
+    wg.Add(1)
+    go worker(ctx)
+    time.Sleep(time.Second * 5)
+    cancel() // 通知子goroutine结束
+    wg.Wait()
+    fmt.Println("over")
 }
 ```
 
@@ -423,11 +419,11 @@ func WithValue(parent Context, key, val interface{}) Context
 package main
 
 import (
-	"context"
-	"fmt"
-	"sync"
+    "context"
+    "fmt"
+    "sync"
 
-	"time"
+    "time"
 )
 
 // context.WithValue
@@ -437,36 +433,36 @@ type TraceCode string
 var wg sync.WaitGroup
 
 func worker(ctx context.Context) {
-	key := TraceCode("TRACE_CODE")
-	traceCode, ok := ctx.Value(key).(string) // 在子goroutine中获取trace code
-	if !ok {
-		fmt.Println("invalid trace code")
-	}
+    key := TraceCode("TRACE_CODE")
+    traceCode, ok := ctx.Value(key).(string) // 在子goroutine中获取trace code
+    if !ok {
+        fmt.Println("invalid trace code")
+    }
 LOOP:
-	for {
-		fmt.Printf("worker, trace code:%s\n", traceCode)
-		time.Sleep(time.Millisecond * 10) // 假设正常连接数据库耗时10毫秒
-		select {
-		case <-ctx.Done(): // 50毫秒后自动调用
-			break LOOP
-		default:
-		}
-	}
-	fmt.Println("worker done!")
-	wg.Done()
+    for {
+        fmt.Printf("worker, trace code:%s\n", traceCode)
+        time.Sleep(time.Millisecond * 10) // 假设正常连接数据库耗时10毫秒
+        select {
+        case <-ctx.Done(): // 50毫秒后自动调用
+            break LOOP
+        default:
+        }
+    }
+    fmt.Println("worker done!")
+    wg.Done()
 }
 
 func main() {
-	// 设置一个50毫秒的超时
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*50)
-	// 在系统的入口中设置trace code传递给后续启动的goroutine实现日志数据聚合
-	ctx = context.WithValue(ctx, TraceCode("TRACE_CODE"), "12512312234")
-	wg.Add(1)
-	go worker(ctx)
-	time.Sleep(time.Second * 5)
-	cancel() // 通知子goroutine结束
-	wg.Wait()
-	fmt.Println("over")
+    // 设置一个50毫秒的超时
+    ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*50)
+    // 在系统的入口中设置trace code传递给后续启动的goroutine实现日志数据聚合
+    ctx = context.WithValue(ctx, TraceCode("TRACE_CODE"), "12512312234")
+    wg.Add(1)
+    go worker(ctx)
+    time.Sleep(time.Second * 5)
+    cancel() // 通知子goroutine结束
+    wg.Wait()
+    fmt.Println("over")
 }
 ```
 
@@ -489,31 +485,31 @@ func main() {
 package main
 
 import (
-	"fmt"
-	"math/rand"
-	"net/http"
+    "fmt"
+    "math/rand"
+    "net/http"
 
-	"time"
+    "time"
 )
 
 // server端，随机出现慢响应
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	number := rand.Intn(2)
-	if number == 0 {
-		time.Sleep(time.Second * 10) // 耗时10秒的慢响应
-		fmt.Fprintf(w, "slow response")
-		return
-	}
-	fmt.Fprint(w, "quick response")
+    number := rand.Intn(2)
+    if number == 0 {
+        time.Sleep(time.Second * 10) // 耗时10秒的慢响应
+        fmt.Fprintf(w, "slow response")
+        return
+    }
+    fmt.Fprint(w, "quick response")
 }
 
 func main() {
-	http.HandleFunc("/", indexHandler)
-	err := http.ListenAndServe(":8000", nil)
-	if err != nil {
-		panic(err)
-	}
+    http.HandleFunc("/", indexHandler)
+    err := http.ListenAndServe(":8000", nil)
+    if err != nil {
+        panic(err)
+    }
 }
 ```
 
@@ -524,71 +520,71 @@ func main() {
 package main
 
 import (
-	"context"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"sync"
-	"time"
+    "context"
+    "fmt"
+    "io/ioutil"
+    "net/http"
+    "sync"
+    "time"
 )
 
 // 客户端
 
 type respData struct {
-	resp *http.Response
-	err  error
+    resp *http.Response
+    err  error
 }
 
 func doCall(ctx context.Context) {
-	transport := http.Transport{
-	   // 请求频繁可定义全局的client对象并启用长链接
-	   // 请求不频繁使用短链接
-	   DisableKeepAlives: true, 	}
-	client := http.Client{
-		Transport: &transport,
-	}
+    transport := http.Transport{
+       // 请求频繁可定义全局的client对象并启用长链接
+       // 请求不频繁使用短链接
+       DisableKeepAlives: true,     }
+    client := http.Client{
+        Transport: &transport,
+    }
 
-	respChan := make(chan *respData, 1)
-	req, err := http.NewRequest("GET", "http://127.0.0.1:8000/", nil)
-	if err != nil {
-		fmt.Printf("new requestg failed, err:%v\n", err)
-		return
-	}
-	req = req.WithContext(ctx) // 使用带超时的ctx创建一个新的client request
-	var wg sync.WaitGroup
-	wg.Add(1)
-	defer wg.Wait()
-	go func() {
-		resp, err := client.Do(req)
-		fmt.Printf("client.do resp:%v, err:%v\n", resp, err)
-		rd := &respData{
-			resp: resp,
-			err:  err,
-		}
-		respChan <- rd
-		wg.Done()
-	}()
+    respChan := make(chan *respData, 1)
+    req, err := http.NewRequest("GET", "http://127.0.0.1:8000/", nil)
+    if err != nil {
+        fmt.Printf("new requestg failed, err:%v\n", err)
+        return
+    }
+    req = req.WithContext(ctx) // 使用带超时的ctx创建一个新的client request
+    var wg sync.WaitGroup
+    wg.Add(1)
+    defer wg.Wait()
+    go func() {
+        resp, err := client.Do(req)
+        fmt.Printf("client.do resp:%v, err:%v\n", resp, err)
+        rd := &respData{
+            resp: resp,
+            err:  err,
+        }
+        respChan <- rd
+        wg.Done()
+    }()
 
-	select {
-	case <-ctx.Done():
-		//transport.CancelRequest(req)
-		fmt.Println("call api timeout")
-	case result := <-respChan:
-		fmt.Println("call server api success")
-		if result.err != nil {
-			fmt.Printf("call server api failed, err:%v\n", result.err)
-			return
-		}
-		defer result.resp.Body.Close()
-		data, _ := ioutil.ReadAll(result.resp.Body)
-		fmt.Printf("resp:%v\n", string(data))
-	}
+    select {
+    case <-ctx.Done():
+        //transport.CancelRequest(req)
+        fmt.Println("call api timeout")
+    case result := <-respChan:
+        fmt.Println("call server api success")
+        if result.err != nil {
+            fmt.Printf("call server api failed, err:%v\n", result.err)
+            return
+        }
+        defer result.resp.Body.Close()
+        data, _ := ioutil.ReadAll(result.resp.Body)
+        fmt.Printf("resp:%v\n", string(data))
+    }
 }
 
 func main() {
-	// 定义一个100毫秒的超时
-	ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
-	defer cancel() // 调用cancel释放子goroutine资源
-	doCall(ctx)
+    // 定义一个100毫秒的超时
+    ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond*100)
+    defer cancel() // 调用cancel释放子goroutine资源
+    doCall(ctx)
 }
 ```

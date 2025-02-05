@@ -61,11 +61,11 @@ title: https
 
 > RSA 是比较传统的密钥交换算法，它不具备前向安全的性质，因此现在很少服务器使用的，现在主流ECDHE密钥交换算法
 
-下面通过 Wireshark 抓包，具体讲一下 SSL/TLS 1.2 四次握手的过程。![图片](assets/images/WechatIMG4.jpeg)
+下面通过 Wireshark 抓包，具体讲一下 SSL/TLS 1.2 四次握手的过程。![图片](../assets/images/WechatIMG4.jpeg)
 
 **第一次握手** 
 
-![图片](assets/images/Snipaste_2024-04-19_16-31-38.png)
+![图片](../assets/images/Snipaste_2024-04-19_16-31-38.png)
 
 客户端向服务器发起加密通信请求 ，内容主要包括：
 
@@ -75,7 +75,7 @@ title: https
 
 **第二次握手** 
 
-![图片](assets/images/Snipaste_2024-04-19_16-33-10.png)
+![图片](../assets/images/Snipaste_2024-04-19_16-33-10.png)
 
 服务器收到客户端加密通信请求后，向客户端发出响应，内容主要包括：
 
@@ -101,7 +101,7 @@ title: https
 
 3. 客户端握手结束通知，表示客户端的握手阶段已经结束。客户端会生成所有握手报文数据的摘要，并用`会话密钥`加密后发送给服务器，用来供服务端校验。
 
-![图片](assets/images/Snipaste_2024-04-19_16-33-47.png)
+![图片](../assets/images/Snipaste_2024-04-19_16-33-47.png)
 
 **第四次握手** 
 
@@ -112,7 +112,7 @@ title: https
 1. 加密通信算法改变通知，表示之后数据都将用`会话密钥`进行加密。
 2. 服务器握手结束通知，表示服务器的握手阶段已经结束。服务器会生成所有握手报文数据的摘要，并用`会话密钥`加密后发送给客户端，用来供客户端校验。
 
-![图片](assets/images/Snipaste_2024-04-19_16-34-35.png)
+![图片](../assets/images/Snipaste_2024-04-19_16-34-35.png)
 
 至此，整个 SSL/TLS 的握手阶段全部结束！
 
@@ -130,7 +130,7 @@ title: https
 
 
 
-![640](assets/images/640.JPG)
+![640](../assets/images/640.JPG)
 
 **RSA 算法的缺陷**
 
@@ -142,7 +142,7 @@ title: https
 
 我用 Wireshark 工具抓了用 ECDHE 密钥协商算法的 TSL 握手过程，可以看到是四次握手：
 
-![图片](assets/images/ECDHE1.png)
+![图片](../assets/images/ECDHE1.png)
 
 细心的小伙伴应该发现了，**使用了 ECDHE，在 TLS 第四次握手前，客户端就已经发送了加密的 HTTP 数据**，而对于 RSA 握手过程，必须要完成 TLS 四次握手，才能传输应用数据。
 
@@ -154,13 +154,13 @@ title: https
 
 客户端首先会发一个「**Client Hello**」消息，消息里面有客户端使用的 TLS 版本号、支持的密码套件列表，以及生成的**随机数（\*Client Random\*）**。个人理解：这里的随机数是客户端椭圆曲线私钥
 
-![图片](assets/images/ECDHE2.png)
+![图片](../assets/images/ECDHE2.png)
 
 #### TLS 第二次握手
 
 服务端收到客户端的「打招呼」，同样也要回礼，会返回「**Server Hello**」消息，消息面有服务器确认的 TLS 版本号，也给出了一个**随机数（\*Server Random\*）**，然后从客户端的密码套件列表选择了一个合适的密码套件。个人理解：这里的随机数是服务端椭圆曲线私钥
 
-![图片](assets/images/ECDHE3.png)
+![图片](../assets/images/ECDHE3.png)
 
 不过，这次选择的密码套件就和 RSA 不一样了，我们来分析一下这次的密码套件的意思。
 
@@ -173,11 +173,11 @@ title: https
 
 接着，服务端为了证明自己的身份，发送「**Certificate**」消息，会把证书也发给客户端。
 
-![图片](assets/images/ECDHE4.png)
+![图片](../assets/images/ECDHE4.png)
 
 这一步就和 RSA 握手过程有很大到区别了，因为服务端选择了 ECDHE 密钥协商算法，所以会在发送完证书后，发送「**Server Key Exchange**」消息。
 
-![图片](assets/images/ECDHE5.png)
+![图片](../assets/images/ECDHE5.png)
 
 这个过程服务器做了三件事：
 
@@ -189,7 +189,7 @@ title: https
 
 随后，就是「**Server Hello Done**」消息，服务端跟客户端表明：“这些就是我提供的信息，打招呼完毕”。
 
-![图片](assets/images/ECDHE6.png)
+![图片](../assets/images/ECDHE6.png)
 
 至此，TLS 两次握手就已经完成了，目前客户端和服务端通过明文共享了这几个信息：**Client Random、Server Random 、使用的椭圆曲线、椭圆曲线基点 G、服务端椭圆曲线的公钥**，这几个信息很重要，是后续生成会话密钥的材料。
 
@@ -199,7 +199,7 @@ title: https
 
 客户端会生成一个随机数作为客户端椭圆曲线的私钥，然后再根据服务端前面给的信息，生成**客户端的椭圆曲线公钥**，然后用「**Client Key Exchange**」消息发给服务端。
 
-![图片](assets/images/ECDHE7.png)
+![图片](../assets/images/ECDHE7.png)
 
 至此，双方都有对方的椭圆曲线公钥、自己的椭圆曲线私钥、椭圆曲线基点 G。于是，双方都就计算出点（x，y），其中 x 坐标值双方都是一样的，前面说 ECDHE 算法时候，说 x 是会话密钥，**但实际应用中，x 还不是最终的会话密钥**。x也叫做预主秘钥。
 
@@ -211,11 +211,11 @@ title: https
 
 算好会话密钥后，客户端会发一个「**Change Cipher Spec**」消息，告诉服务端后续改用对称算法加密通信。
 
-![图片](assets/images/ECDHE8.png)
+![图片](../assets/images/ECDHE8.png)
 
 接着，客户端会发「**Encrypted Handshake Message**」消息，把之前发送的数据做一个摘要，再用对称密钥加密一下，让服务端做个验证，验证下本次生成的对称密钥是否可以正常使用。
 
-![图片](assets/images/ECDHE9.png)
+![图片](../assets/images/ECDHE9.png)
 
 #### TLS 第四次握手
 

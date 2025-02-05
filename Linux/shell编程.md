@@ -11,7 +11,7 @@
 　　　　　　　　　　　　
 　　　　　　　　　　　　
 alias(别名)
-    设置别名：alias test="ls -l"
+    设置别名：ali as test="ls -l"
     取消别名：unalias test
    
 　　　　　　　　
